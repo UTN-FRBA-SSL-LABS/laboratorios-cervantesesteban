@@ -25,18 +25,54 @@ void test_agregar_uno(void) {
 /* ═══════════════════════════════════════════════════════════════════════════
  *  PARTE A — Agregar el siguiente test (ver README.md, Parte 4)
  * ═══════════════════════════════════════════════════════════════════════════ */
+void test_total_precio_unitario(void) {
+    printf("\n[total: un producto, cantidad 1]\n");
+    Carrito c;
+    carrito_init(&c);
+    Producto p = {"Leche", 350, 1};
+    carrito_agregar(&c, p);
+    ASSERT_IGUAL(350, carrito_total(&c));
+}
 
 /* TODO: pegar aqui la funcion test_total_precio_unitario() */
 
 /* ═══════════════════════════════════════════════════════════════════════════
  *  PARTE B — Completar los blancos (ver README.md, Parte 5)
  * ═══════════════════════════════════════════════════════════════════════════ */
+void test_total_con_cantidad(void) {
+    printf("\n[total: un producto, cantidad 2]\n");
+    Carrito c;
+    carrito_init(&c);
+    Producto p = {"Leche", 350, 2};  /* 350 x 2 = 700 */
+    carrito_agregar(&c, p);
+    ASSERT_IGUAL(700, carrito_total(&c));  /* <-- completar el valor esperado */
+}
 
 /* TODO: pegar y completar la funcion test_total_con_cantidad() */
 
 /* ═══════════════════════════════════════════════════════════════════════════
  *  PARTE C — Escribir un test propio (ver README.md, Parte 7)
  * ═══════════════════════════════════════════════════════════════════════════ */
+
+ void test_carrito_lleno(void) {
+    printf("\n[carrito lleno]\n");
+    Carrito c;
+    carrito_init(&c);
+
+    Producto p = {"Manzana", 100, 1};
+
+    /* Llenar el carrito con 4 productos */
+    for (int i = 0; i < 4; i++) {
+        ASSERT_IGUAL(1, carrito_agregar(&c, p));
+    }
+
+    /* Intentar agregar el 5to producto: debe fallar (devolver 0) */
+    ASSERT_IGUAL(0, carrito_agregar(&c, p));
+
+    /* Verificar que la cantidad total se mantenga en 4 */
+    ASSERT_IGUAL(4, carrito_contar(&c));
+}
+
 
 /* TODO: escribir test_carrito_lleno() */
 
@@ -49,9 +85,9 @@ int main(void) {
     test_carrito_nuevo();
     test_agregar_uno();
     /* Descomentar a medida que agregues las funciones: */
-    /* test_total_precio_unitario(); */
-    /* test_total_con_cantidad();    */
-    /* test_carrito_lleno();         */
+    test_total_precio_unitario();
+    test_total_con_cantidad();
+    test_carrito_lleno();         
     RESUMEN();
     return EXIT_CODE();
 }
