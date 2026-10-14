@@ -277,7 +277,7 @@ Los tests de `IsEmpty` ya están activos en `StringTest.c`. Corré `make test` y
 
 **P1** — `IsEmpty` podría haberse escrito también como `return s[0] == '\0'`. ¿Son equivalentes? ¿Por qué?
 
-> R:
+> R: Sí, son totalmente equivalentes. En C, el operador de subíndice s[i] se define exactamente como *(s + i)
 
 ---
 
@@ -328,14 +328,14 @@ make test
 
 **P2** — ¿Qué hace `s + 1`? ¿Por qué avanza al siguiente carácter y no al siguiente byte?
 
-> R:
+> R: s + 1 aplica aritmética de punteros para obtener la dirección de memoria del siguiente elemento de la cadena. Avanza al siguiente carácter porque en C al sumar 1 a un puntero de tipo T*, la dirección avanza exactamente 1 * sizeof(T) bytes.
 
 **P3** — Si llamaras a `GetLength(NULL)`, ¿qué pasaría? ¿Por qué las precondiciones del contrato dicen `s != NULL`?
 
-> R:
+> R: El programa fallaría en tiempo de ejecución con un Segmentation Fault porque GetLength llama a IsEmpty(NULL), la cual intenta desreferenciar el puntero nulo con *s. La precondición s != NULL existe en el contrato porque una cadena vacía ("") es una dirección de memoria válida que contiene '\0', mientras que NULL no apunta a ninguna dirección válida y desreferenciarlo es ilegal en C.
 
 ```
-GETLENGTH_PASA=
+GETLENGTH_PASA=SI
 ```
 _(escribí SI cuando todos los tests de GetLength pasen)_
 
@@ -367,7 +367,7 @@ El `while` termina cuando alguna de las dos cadenas llega a `'\0'`. Después dev
 
 **P4** — ¿Qué dos casos están mal cubiertos por `return 1`? Describí un ejemplo para cada uno.
 
-> R:
+> R: Los dos casos mal cubiertos ocurren cuando las cadenas tienen distinta longitud y una es prefijo exacto de la otra : s1 es más corta que s2 (s1 es prefijo de s2): Por ejemplo, AreEqual("sol", "solar"). El ciclo while compara 's', 'o' y 'l', y se detiene porque s1 llegó a '\0'. Como nunca verifica que a s2 todavía le quedan 'a' y 'r', devuelve 1 (verdadero) erróneamente. s2 es más corta que s1 (s2 es prefijo de s1): Por ejemplo, AreEqual("solar", "sol") (o AreEqual("a", "")). El ciclo corta porque s2 llegó a '\0' mientras s1 aún tiene caracteres pendientes, y devuelve 1 erróneamente.
 
 #### Corrección
 
@@ -384,7 +384,7 @@ make test
 ```
 
 ```
-AREEQUAL_PASA=
+AREEQUAL_PASA=SI
 ```
 _(escribí SI cuando todos los tests de AreEqual pasen)_
 
@@ -414,7 +414,7 @@ int AreDecimalDigits(const char *s) {
 
 **P5** — ¿Por qué la cadena vacía no debería considerarse un conjunto de dígitos decimales? Pensalo desde la especificación matemática.
 
-> R:
+> R: Desde la especificación matemática y de lenguajes formales, un numeral decimal válido pertenece a la clausura positiva de los dígitos equivalente a la expresión regular [0-9]+, que exige al menos un símbolo), y no a la clausura de Kleene . Aunque en lógica un cuantificador universal sobre el conjunto vacíoresulta "vacuamente verdadero", una cadena vacía ("") tiene longitud $0$ y no contiene ningún símbolo, por lo que no representa ningún valor numérico ni puede convertirse a un entero mediante ToInteger
 
 #### Corrección
 
@@ -425,7 +425,7 @@ make test
 ```
 
 ```
-AREDECIMALDIGITS_PASA=
+AREDECIMALDIGITS_PASA=SI
 ```
 _(escribí SI cuando todos los tests de AreDecimalDigits pasen)_
 
@@ -452,7 +452,7 @@ make test
 ```
 
 ```
-CONTAINS_PASA=
+CONTAINS_PASA=SI
 ```
 _(escribí SI cuando todos los tests de Contains pasen)_
 
@@ -467,7 +467,7 @@ Antes de implementar, discutí con tu equipo:
 
 **P6** — Conclusión de la discusión:
 
-> R:
+> R: Es correcto tenerla en un módulo separado (Conversion) por alta cohesión y separación de responsabilidades. La biblioteca String agrupa operaciones puras sobre secuencias de caracteres (longitud, igualdad, pertenencia), mientras que ToInteger realiza una interpretación semántica y numérica para transformar un tipo de dato en otro
 
 ---
 
@@ -494,7 +494,7 @@ int ToInteger(const char *s) {
 
 **P7** — El loop acumula correctamente el valor en `resultado`. ¿Qué está mal en el `return`?
 
-> R:
+> R: La función devuelve únicamente signo (que siempre vale 1 o -1), ignorando el valor numérico calculado en resultado. Debería devolver el producto de ambos: return signo * resultado;.
 
 #### Corrección
 
@@ -506,10 +506,10 @@ make test
 
 **P8** — La expresión `*s - '0'` convierte un carácter dígito al entero correspondiente. ¿Por qué funciona? ¿Qué devuelve `'3' - '0'`?
 
-> R:
+> R: R: Funciona porque en la tabla ASCII (y por garantía del estándar de C) los caracteres de los dígitos del '0' al '9' están almacenados de forma contigua y en orden creciente (del código 48 al 57). Como en C los char son internamente valores enteros pequeños, al restarle el código ASCII de '0' a cualquier carácter dígito se obtiene su distancia respecto al cero, que coincide exactamente con su valor numérico. En particular, '3' - '0' evalúa 51 - 48 y devuelve el entero 3.
 
 ```
-TOINTEGER_PASA=
+TOINTEGER_PASA=SI
 ```
 _(escribí SI cuando todos los tests de ToInteger pasen)_
 
@@ -562,7 +562,7 @@ foo
 
 **P9** — ¿Por qué `(void)argc` suprime un warning? ¿Cuándo sería necesario usar `argc`?
 
-> R:
+> R: (void)argc; evalúa el parámetro y descarta su resultado explícitamente, lo que le indica al compilador que es intencional no usar esa variable y suprime la advertencia de parámetro sin usar (-Wunused-parameter, incluida en -Wall / -Wextra). Sería necesario usar argc cuando necesitamos conocer de antemano la cantidad exacta de argumentos sin tener que recorrer todo el arreglo hasta NULL
 
 ---
 
@@ -589,7 +589,7 @@ Salida esperada:
 ```
 
 ```
-LONGITUDES_PASA=
+LONGITUDES_PASA=SI
 ```
 _(SI o NO)_
 
@@ -616,7 +616,7 @@ make mayorlongitud
 ```
 
 ```
-MAYORLONGITUD_PASA=
+MAYORLONGITUD_PASA=SI
 ```
 _(SI o NO)_
 
@@ -635,7 +635,7 @@ make todosiguales
 ```
 
 ```
-TODOSIGUALES_PASA=
+TODOSIGUALES_PASA=SI
 ```
 _(SI o NO)_
 
